@@ -44,10 +44,6 @@
       position: absolute;
       transform: translate(-50%, -100%);
       pointer-events: none;
-      /* lighten: white pixels stay white (visible lines), same-colour pixels
-         cancel out (olive bg on olive map disappears). Best CSS option until
-         buildings are re-exported with transparent background from Canva. */
-      mix-blend-mode: lighten;
     }
     .building img {
       display: block;
@@ -252,45 +248,35 @@
   <div id="world">
     <img id="map-img" src="images/Casa%20Juli%C3%A1n%20Alvarez%20BG.png" alt="Mapa Palermo Buenos Aires">
 
-    <!-- data-x / data-y: position as fraction of image size (building bottom-centre).
-         data-w: width as fraction of image width — sized to match Canva reference. -->
-
-    <!-- 1 Malba – upper right, Av. Figueroa Alcorta -->
+    <!-- 1 Malba -->
     <div class="building" data-x="0.570" data-y="0.310" data-w="0.100">
-      <img src="images/MALBA.png" alt="Malba">
+      <img src="images/MALBA.png" alt="Malba" crossorigin="anonymous">
     </div>
-
-    <!-- 2 Teatro Colón – lower right, Cerrito -->
+    <!-- 2 Teatro Colón -->
     <div class="building" data-x="0.715" data-y="0.878" data-w="0.090">
-      <img src="images/teatro%20colon.png" alt="Teatro Colón">
+      <img src="images/teatro%20colon.png" alt="Teatro Colón" crossorigin="anonymous">
     </div>
-
-    <!-- 3 Ninina – centre, Gorriti / Av. Córdoba -->
+    <!-- 3 Ninina -->
     <div class="building" data-x="0.318" data-y="0.595" data-w="0.080">
-      <img src="images/ninina.png" alt="Ninina">
+      <img src="images/ninina.png" alt="Ninina" crossorigin="anonymous">
     </div>
-
-    <!-- 4 Chuí – left-centre, Loyola -->
+    <!-- 4 Chuí -->
     <div class="building" data-x="0.158" data-y="0.548" data-w="0.082">
-      <img src="images/chui.png" alt="Chuí">
+      <img src="images/chui.png" alt="Chuí" crossorigin="anonymous">
     </div>
-
-    <!-- 5 El Gordo Chanta – left, Juan Ramírez de Velasco -->
+    <!-- 5 El Gordo Chanta -->
     <div class="building" data-x="0.096" data-y="0.645" data-w="0.090">
-      <img src="images/el%20gordo%20chanta.png" alt="El Gordo Chanta">
+      <img src="images/el%20gordo%20chanta.png" alt="El Gordo Chanta" crossorigin="anonymous">
     </div>
-
-    <!-- 6 El Preferido – centre-upper, Jorge Luis Borges -->
+    <!-- 6 El Preferido -->
     <div class="building" data-x="0.300" data-y="0.418" data-w="0.082">
-      <img src="images/el%20preferido.png" alt="El Preferido">
+      <img src="images/el%20preferido.png" alt="El Preferido" crossorigin="anonymous">
     </div>
-
-    <!-- 7 La Ideal – lower right, Suipacha -->
+    <!-- 7 La Ideal -->
     <div class="building" data-x="0.820" data-y="0.872" data-w="0.088">
-      <img src="images/la%20ideal.png" alt="La Ideal">
+      <img src="images/la%20ideal.png" alt="La Ideal" crossorigin="anonymous">
     </div>
 
-    <!-- Markers at same anchor as building base -->
     <div class="marker" data-id="1" data-x="0.570" data-y="0.310">1</div>
     <div class="marker" data-id="2" data-x="0.715" data-y="0.878">2</div>
     <div class="marker" data-id="3" data-x="0.318" data-y="0.595">3</div>
@@ -377,6 +363,41 @@
 
   const MIN_SCALE = 0.3, MAX_SCALE = 5;
 
+  // Strip near-white pixels from a building image using an offscreen canvas.
+  // Threshold 210: pixels where R, G, B are all above this become transparent.
+  function removeWhiteBg(img) {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width  = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = imageData.data;
+      const T = 210;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i] > T && d[i + 1] > T && d[i + 2] > T) {
+          d[i + 3] = 0;
+        }
+      }
+      ctx.putImageData(imageData, 0, 0);
+      img.src = canvas.toDataURL('image/png');
+    } catch (e) {
+      // If canvas is blocked (e.g. CORS), silently skip — image renders with bg
+      console.warn('Could not strip white bg from', img.alt, e);
+    }
+  }
+
+  function processBuildings() {
+    document.querySelectorAll('.building img').forEach(img => {
+      if (img.complete && img.naturalWidth) {
+        removeWhiteBg(img);
+      } else {
+        img.addEventListener('load', () => removeWhiteBg(img), { once: true });
+      }
+    });
+  }
+
   function layoutElements() {
     imgW = mapImg.naturalWidth  || mapImg.offsetWidth;
     imgH = mapImg.naturalHeight || mapImg.offsetHeight;
@@ -407,8 +428,8 @@
     applyTransform();
   }
 
-  mapImg.addEventListener('load', fitMap);
-  if (mapImg.complete && mapImg.naturalWidth) fitMap();
+  mapImg.addEventListener('load', () => { fitMap(); processBuildings(); });
+  if (mapImg.complete && mapImg.naturalWidth) { fitMap(); processBuildings(); }
 
   function applyTransform() {
     world.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
