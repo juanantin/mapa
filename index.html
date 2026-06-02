@@ -44,14 +44,15 @@
       position: absolute;
       transform: translate(-50%, -100%);
       pointer-events: none;
-      /* multiply makes white pixels take on the colour of whatever's beneath,
-         effectively removing any white background on the exported PNGs.
-         For a pixel-perfect result, re-export each building from Canva with
-         "Transparent background" checked under File → Download → PNG. */
-      mix-blend-mode: multiply;
+      /* lighten: white pixels stay white (visible lines), same-colour pixels
+         cancel out (olive bg on olive map disappears). Best CSS option until
+         buildings are re-exported with transparent background from Canva. */
+      mix-blend-mode: lighten;
     }
     .building img {
       display: block;
+      width: 100%;
+      height: auto;
       -webkit-user-drag: none;
       pointer-events: none;
     }
@@ -251,52 +252,52 @@
   <div id="world">
     <img id="map-img" src="images/Casa%20Juli%C3%A1n%20Alvarez%20BG.png" alt="Mapa Palermo Buenos Aires">
 
-    <!-- Positions match the composed Canva reference (data-x, data-y as fraction of image size).
-         Building bottom-centre anchors at the marker point via transform: translate(-50%, -100%). -->
+    <!-- data-x / data-y: position as fraction of image size (building bottom-centre).
+         data-w: width as fraction of image width — sized to match Canva reference. -->
 
     <!-- 1 Malba – upper right, Av. Figueroa Alcorta -->
-    <div class="building" data-x="0.565" data-y="0.340" data-w="125">
-      <img src="images/MALBA.png" width="125" alt="Malba">
+    <div class="building" data-x="0.570" data-y="0.310" data-w="0.100">
+      <img src="images/MALBA.png" alt="Malba">
     </div>
 
-    <!-- 2 Teatro Colón – lower right, Cerrito / Av. Corrientes -->
-    <div class="building" data-x="0.715" data-y="0.855" data-w="120">
-      <img src="images/teatro%20colon.png" width="120" alt="Teatro Colón">
+    <!-- 2 Teatro Colón – lower right, Cerrito -->
+    <div class="building" data-x="0.715" data-y="0.878" data-w="0.090">
+      <img src="images/teatro%20colon.png" alt="Teatro Colón">
     </div>
 
     <!-- 3 Ninina – centre, Gorriti / Av. Córdoba -->
-    <div class="building" data-x="0.285" data-y="0.650" data-w="110">
-      <img src="images/ninina.png" width="110" alt="Ninina">
+    <div class="building" data-x="0.318" data-y="0.595" data-w="0.080">
+      <img src="images/ninina.png" alt="Ninina">
     </div>
 
     <!-- 4 Chuí – left-centre, Loyola -->
-    <div class="building" data-x="0.150" data-y="0.605" data-w="110">
-      <img src="images/chui.png" width="110" alt="Chuí">
+    <div class="building" data-x="0.158" data-y="0.548" data-w="0.082">
+      <img src="images/chui.png" alt="Chuí">
     </div>
 
     <!-- 5 El Gordo Chanta – left, Juan Ramírez de Velasco -->
-    <div class="building" data-x="0.138" data-y="0.695" data-w="115">
-      <img src="images/el%20gordo%20chanta.png" width="115" alt="El Gordo Chanta">
+    <div class="building" data-x="0.096" data-y="0.645" data-w="0.090">
+      <img src="images/el%20gordo%20chanta.png" alt="El Gordo Chanta">
     </div>
 
     <!-- 6 El Preferido – centre-upper, Jorge Luis Borges -->
-    <div class="building" data-x="0.298" data-y="0.455" data-w="115">
-      <img src="images/el%20preferido.png" width="115" alt="El Preferido">
+    <div class="building" data-x="0.300" data-y="0.418" data-w="0.082">
+      <img src="images/el%20preferido.png" alt="El Preferido">
     </div>
 
     <!-- 7 La Ideal – lower right, Suipacha -->
-    <div class="building" data-x="0.795" data-y="0.895" data-w="115">
-      <img src="images/la%20ideal.png" width="115" alt="La Ideal">
+    <div class="building" data-x="0.820" data-y="0.872" data-w="0.088">
+      <img src="images/la%20ideal.png" alt="La Ideal">
     </div>
 
-    <!-- Markers sit at the same anchor point (base of each building) -->
-    <div class="marker" data-id="1" data-x="0.565" data-y="0.340">1</div>
-    <div class="marker" data-id="2" data-x="0.715" data-y="0.855">2</div>
-    <div class="marker" data-id="3" data-x="0.285" data-y="0.650">3</div>
-    <div class="marker" data-id="4" data-x="0.150" data-y="0.605">4</div>
-    <div class="marker" data-id="5" data-x="0.138" data-y="0.695">5</div>
-    <div class="marker" data-id="6" data-x="0.298" data-y="0.455">6</div>
-    <div class="marker" data-id="7" data-x="0.795" data-y="0.895">7</div>
+    <!-- Markers at same anchor as building base -->
+    <div class="marker" data-id="1" data-x="0.570" data-y="0.310">1</div>
+    <div class="marker" data-id="2" data-x="0.715" data-y="0.878">2</div>
+    <div class="marker" data-id="3" data-x="0.318" data-y="0.595">3</div>
+    <div class="marker" data-id="4" data-x="0.158" data-y="0.548">4</div>
+    <div class="marker" data-id="5" data-x="0.096" data-y="0.645">5</div>
+    <div class="marker" data-id="6" data-x="0.300" data-y="0.418">6</div>
+    <div class="marker" data-id="7" data-x="0.820" data-y="0.872">7</div>
 
     <div class="popup hidden" id="popup">
       <div class="popup-name" id="popup-name"></div>
@@ -383,7 +384,14 @@
     mapImg.style.height = imgH + 'px';
     world.style.width   = imgW + 'px';
     world.style.height  = imgH + 'px';
-    document.querySelectorAll('.building, .marker').forEach(el => {
+
+    document.querySelectorAll('.building').forEach(el => {
+      el.style.left  = (parseFloat(el.dataset.x) * imgW) + 'px';
+      el.style.top   = (parseFloat(el.dataset.y) * imgH) + 'px';
+      el.style.width = (parseFloat(el.dataset.w) * imgW) + 'px';
+    });
+
+    document.querySelectorAll('.marker').forEach(el => {
       el.style.left = (parseFloat(el.dataset.x) * imgW) + 'px';
       el.style.top  = (parseFloat(el.dataset.y) * imgH) + 'px';
     });
