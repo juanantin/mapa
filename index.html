@@ -44,6 +44,11 @@
       position: absolute;
       transform: translate(-50%, -100%);
       pointer-events: none;
+      /* multiply makes white pixels take on the colour of whatever's beneath,
+         effectively removing any white background on the exported PNGs.
+         For a pixel-perfect result, re-export each building from Canva with
+         "Transparent background" checked under File → Download → PNG. */
+      mix-blend-mode: multiply;
     }
     .building img {
       display: block;
@@ -246,35 +251,52 @@
   <div id="world">
     <img id="map-img" src="images/Casa%20Juli%C3%A1n%20Alvarez%20BG.png" alt="Mapa Palermo Buenos Aires">
 
-    <div class="building" data-x="0.570" data-y="0.300" data-w="130">
-      <img src="images/MALBA.png" width="130" alt="Malba">
+    <!-- Positions match the composed Canva reference (data-x, data-y as fraction of image size).
+         Building bottom-centre anchors at the marker point via transform: translate(-50%, -100%). -->
+
+    <!-- 1 Malba – upper right, Av. Figueroa Alcorta -->
+    <div class="building" data-x="0.565" data-y="0.340" data-w="125">
+      <img src="images/MALBA.png" width="125" alt="Malba">
     </div>
-    <div class="building" data-x="0.720" data-y="0.820" data-w="120">
+
+    <!-- 2 Teatro Colón – lower right, Cerrito / Av. Corrientes -->
+    <div class="building" data-x="0.715" data-y="0.855" data-w="120">
       <img src="images/teatro%20colon.png" width="120" alt="Teatro Colón">
     </div>
-    <div class="building" data-x="0.290" data-y="0.630" data-w="110">
+
+    <!-- 3 Ninina – centre, Gorriti / Av. Córdoba -->
+    <div class="building" data-x="0.285" data-y="0.650" data-w="110">
       <img src="images/ninina.png" width="110" alt="Ninina">
     </div>
-    <div class="building" data-x="0.160" data-y="0.580" data-w="110">
+
+    <!-- 4 Chuí – left-centre, Loyola -->
+    <div class="building" data-x="0.150" data-y="0.605" data-w="110">
       <img src="images/chui.png" width="110" alt="Chuí">
     </div>
-    <div class="building" data-x="0.145" data-y="0.670" data-w="115">
+
+    <!-- 5 El Gordo Chanta – left, Juan Ramírez de Velasco -->
+    <div class="building" data-x="0.138" data-y="0.695" data-w="115">
       <img src="images/el%20gordo%20chanta.png" width="115" alt="El Gordo Chanta">
     </div>
-    <div class="building" data-x="0.305" data-y="0.430" data-w="115">
+
+    <!-- 6 El Preferido – centre-upper, Jorge Luis Borges -->
+    <div class="building" data-x="0.298" data-y="0.455" data-w="115">
       <img src="images/el%20preferido.png" width="115" alt="El Preferido">
     </div>
-    <div class="building" data-x="0.800" data-y="0.870" data-w="115">
+
+    <!-- 7 La Ideal – lower right, Suipacha -->
+    <div class="building" data-x="0.795" data-y="0.895" data-w="115">
       <img src="images/la%20ideal.png" width="115" alt="La Ideal">
     </div>
 
-    <div class="marker" data-id="1" data-x="0.570" data-y="0.370">1</div>
-    <div class="marker" data-id="2" data-x="0.720" data-y="0.880">2</div>
-    <div class="marker" data-id="3" data-x="0.290" data-y="0.680">3</div>
-    <div class="marker" data-id="4" data-x="0.160" data-y="0.625">4</div>
-    <div class="marker" data-id="5" data-x="0.145" data-y="0.715">5</div>
-    <div class="marker" data-id="6" data-x="0.305" data-y="0.470">6</div>
-    <div class="marker" data-id="7" data-x="0.800" data-y="0.912">7</div>
+    <!-- Markers sit at the same anchor point (base of each building) -->
+    <div class="marker" data-id="1" data-x="0.565" data-y="0.340">1</div>
+    <div class="marker" data-id="2" data-x="0.715" data-y="0.855">2</div>
+    <div class="marker" data-id="3" data-x="0.285" data-y="0.650">3</div>
+    <div class="marker" data-id="4" data-x="0.150" data-y="0.605">4</div>
+    <div class="marker" data-id="5" data-x="0.138" data-y="0.695">5</div>
+    <div class="marker" data-id="6" data-x="0.298" data-y="0.455">6</div>
+    <div class="marker" data-id="7" data-x="0.795" data-y="0.895">7</div>
 
     <div class="popup hidden" id="popup">
       <div class="popup-name" id="popup-name"></div>
