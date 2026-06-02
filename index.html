@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mapa – Casa Julián Alvarez</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #5a5e48;
+      font-family: 'Georgia', serif;
+      touch-action: none;
+    }
+
+    /* ── Map viewport ── */
+    #viewport {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    #viewport.dragging { cursor: grabbing; }
+
+    /* ── Pannable / zoomable world ── */
+    #world {
+      position: absolute;
+      top: 0; left: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    /* ── Map background image ── */
+    #map-img {
+      display: block;
+      pointer-events: none;
+      -webkit-user-drag: none;
+      /* natural width set in JS after load */
+    }
+
+    /* ── Building illustrations ── */
+    .building {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      pointer-events: none;
+    }
+    .building img {
+      display: block;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    /* ── Numbered markers ── */
+    .marker {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #d4c4a0;
+      border: 2px solid #f5efe3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: bold;
+      color: #2a2e1a;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      transition: background 0.15s, transform 0.15s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .marker:hover, .marker.active {
+      background: #f5efe3;
+      transform: translate(-50%, -50%) scale(1.25);
+    }
+
+    /* ── Popup ── */
+    .popup {
+      position: absolute;
+      background: rgba(30, 33, 18, 0.96);
+      border: 1px solid #d4c4a0;
+      border-radius: 5px;
+      padding: 10px 14px;
+      min-width: 180px;
+      max-width: 220px;
+      z-index: 20;
+      pointer-events: none;
+      transform: translate(-50%, calc(-100% - 22px));
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    .popup::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 7px solid #d4c4a0;
+    }
+    .popup.hidden { display: none; }
+    .popup-name {
+      color: #f5efe3;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 4px;
+      letter-spacing: 0.3px;
+    }
+    .popup-address {
+      color: #a09070;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    /* ── Legend panel ── */
+    #legend {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 100;
+      background: rgba(30, 33, 18, 0.93);
+      border: 1px solid #d4c4a0;
+      border-radius: 6px;
+      overflow: hidden;
+      min-width: 210px;
+      max-width: 240px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+    }
+    #legend-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      cursor: pointer;
+      color: #f5efe3;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    #legend-header:hover { background: rgba(255,255,255,0.04); }
+    #legend-chevron {
+      font-size: 9px;
+      opacity: 0.6;
+      transition: transform 0.2s;
+    }
+    #legend-chevron.open { transform: rotate(180deg); }
+
+    #legend-body {
+      border-top: 1px solid rgba(212,196,160,0.2);
+      overflow: hidden;
+      max-height: 400px;
+      transition: max-height 0.25s ease;
+    }
+    #legend-body.collapsed { max-height: 0; border-top: none; }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(212,196,160,0.1);
+      transition: background 0.1s;
+    }
+    .legend-item:last-child { border-bottom: none; }
+    .legend-item:hover { background: rgba(255,255,255,0.05); }
+    .legend-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #d4c4a0;
+      color: #2a2e1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .legend-info strong {
+      display: block;
+      color: #f5efe3;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .legend-info span {
+      display: block;
+      color: #8a9070;
+      font-size: 10px;
+      margin-top: 1px;
+    }
+
+    /* ── Zoom controls ── */
+    #zoom-controls {
+      position: fixed;
+      bottom: 24px;
+      right: 16px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .zoom-btn {
+      width: 38px;
+      height: 38px;
+      background: rgba(30, 33, 18, 0.93);
+      border: 1px solid #d4c4a0;
+      border-radius: 5px;
+      color: #f5efe3;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      transition: background 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .zoom-btn:active { background: rgba(212,196,160,0.25); }
+
+    /* ── Reset button ── */
+    #reset-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 14px;
+      z-index: 100;
+      background: rgba(30, 33, 18, 0.93);
+      border: 1px solid #d4c4a0;
+      border-radius: 5px;
+      color: #a09070;
+      font-size: 10px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 0 12px;
+      height: 38px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+      transition: background 0.1s, color 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #reset-btn:active { background: rgba(212,196,160,0.25); color: #f5efe3; }
+  </style>
+</head>
+<body>
+
+<div id="viewport">
+  <div id="world">
+    <img id="map-img" src="images/map-bg.png" alt="Mapa Palermo Buenos Aires">
+
+    <!-- Building illustrations (positioned as % of natural image size, set in JS) -->
+    <!-- Buildings are hidden until map image loads -->
+    <div class="building" data-x="0.570" data-y="0.300" data-w="130">
+      <img src="images/malba.png" width="130" alt="Malba">
+    </div>
+    <div class="building" data-x="0.720" data-y="0.820" data-w="120">
+      <img src="images/teatro-colon.png" width="120" alt="Teatro Colón">
+    </div>
+    <div class="building" data-x="0.290" data-y="0.630" data-w="110">
+      <img src="images/ninina.png" width="110" alt="Ninina">
+    </div>
+    <div class="building" data-x="0.160" data-y="0.580" data-w="110">
+      <img src="images/chui.png" width="110" alt="Chuí">
+    </div>
+    <div class="building" data-x="0.145" data-y="0.670" data-w="115">
+      <img src="images/el-gordo-chanta.png" width="115" alt="El Gordo Chanta">
+    </div>
+    <div class="building" data-x="0.305" data-y="0.430" data-w="115">
+      <img src="images/el-preferido.png" width="115" alt="El Preferido">
+    </div>
+    <div class="building" data-x="0.800" data-y="0.870" data-w="115">
+      <img src="images/la-ideal.png" width="115" alt="La Ideal">
+    </div>
+
+    <!-- Markers -->
+    <div class="marker" data-id="1" data-x="0.570" data-y="0.370">1</div>
+    <div class="marker" data-id="2" data-x="0.720" data-y="0.880">2</div>
+    <div class="marker" data-id="3" data-x="0.290" data-y="0.680">3</div>
+    <div class="marker" data-id="4" data-x="0.160" data-y="0.625">4</div>
+    <div class="marker" data-id="5" data-x="0.145" data-y="0.715">5</div>
+    <div class="marker" data-id="6" data-x="0.305" data-y="0.470">6</div>
+    <div class="marker" data-id="7" data-x="0.800" data-y="0.912">7</div>
+
+    <!-- Single shared popup -->
+    <div class="popup hidden" id="popup">
+      <div class="popup-name" id="popup-name"></div>
+      <div class="popup-address" id="popup-address"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div id="legend">
+  <div id="legend-header">
+    <span>Leyenda</span>
+    <span id="legend-chevron" class="open">&#9660;</span>
+  </div>
+  <div id="legend-body">
+    <div class="legend-item" data-id="1">
+      <div class="legend-num">1</div>
+      <div class="legend-info"><strong>Malba</strong><span>Av. Figueroa Alcorta 3415</span></div>
+    </div>
+    <div class="legend-item" data-id="2">
+      <div class="legend-num">2</div>
+      <div class="legend-info"><strong>Teatro Colón</strong><span>Cerrito 628</span></div>
+    </div>
+    <div class="legend-item" data-id="3">
+      <div class="legend-num">3</div>
+      <div class="legend-info"><strong>Ninina</strong><span>Gorriti 4738</span></div>
+    </div>
+    <div class="legend-item" data-id="4">
+      <div class="legend-num">4</div>
+      <div class="legend-info"><strong>Chuí</strong><span>Loyola 1250</span></div>
+    </div>
+    <div class="legend-item" data-id="5">
+      <div class="legend-num">5</div>
+      <div class="legend-info"><strong>El Gordo Chanta</strong><span>Juan Ramírez de Velasco 1200</span></div>
+    </div>
+    <div class="legend-item" data-id="6">
+      <div class="legend-num">6</div>
+      <div class="legend-info"><strong>El Preferido</strong><span>Jorge Luis Borges 2108</span></div>
+    </div>
+    <div class="legend-item" data-id="7">
+      <div class="legend-num">7</div>
+      <div class="legend-info"><strong>La Ideal</strong><span>Suipacha 384</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Zoom controls -->
+<div id="zoom-controls">
+  <button class="zoom-btn" id="zoom-in" aria-label="Acercar">+</button>
+  <button class="zoom-btn" id="zoom-out" aria-label="Alejar">&#8722;</button>
+</div>
+
+<button id="reset-btn" aria-label="Restablecer vista">Reset</button>
+
+<script>
+(function () {
+  const PLACES = {
+    1: { name: 'Malba',           address: 'Av. Figueroa Alcorta 3415' },
+    2: { name: 'Teatro Colón',    address: 'Cerrito 628' },
+    3: { name: 'Ninina',          address: 'Gorriti 4738' },
+    4: { name: 'Chuí',            address: 'Loyola 1250' },
+    5: { name: 'El Gordo Chanta', address: 'Juan Ramírez de Velasco 1200' },
+    6: { name: 'El Preferido',    address: 'Jorge Luis Borges 2108' },
+    7: { name: 'La Ideal',        address: 'Suipacha 384' },
+  };
+
+  const viewport  = document.getElementById('viewport');
+  const world     = document.getElementById('world');
+  const mapImg    = document.getElementById('map-img');
+  const popup     = document.getElementById('popup');
+  const popupName = document.getElementById('popup-name');
+  const popupAddr = document.getElementById('popup-address');
+
+  let scale = 1, tx = 0, ty = 0;
+  let dragging = false, startX, startY;
+  let activeMarker = null;
+  let imgW = 0, imgH = 0;
+  let initialScale, initialTx, initialTy;
+
+  const MIN_SCALE = 0.3, MAX_SCALE = 5;
+
+  // ── Layout elements using data-x / data-y fractions ──────────────────────
+  function layoutElements() {
+    imgW = mapImg.naturalWidth  || mapImg.offsetWidth;
+    imgH = mapImg.naturalHeight || mapImg.offsetHeight;
+    mapImg.style.width  = imgW + 'px';
+    mapImg.style.height = imgH + 'px';
+    world.style.width   = imgW + 'px';
+    world.style.height  = imgH + 'px';
+
+    document.querySelectorAll('.building, .marker').forEach(el => {
+      const fx = parseFloat(el.dataset.x);
+      const fy = parseFloat(el.dataset.y);
+      el.style.left = (fx * imgW) + 'px';
+      el.style.top  = (fy * imgH) + 'px';
+    });
+  }
+
+  // ── Initial fit ──────────────────────────────────────────────────────────
+  function fitMap() {
+    layoutElements();
+    const vw = viewport.offsetWidth;
+    const vh = viewport.offsetHeight;
+    scale = Math.min(vw / imgW, vh / imgH);
+    tx = (vw - imgW * scale) / 2;
+    ty = (vh - imgH * scale) / 2;
+    initialScale = scale; initialTx = tx; initialTy = ty;
+    applyTransform();
+  }
+
+  mapImg.addEventListener('load', fitMap);
+  if (mapImg.complete && mapImg.naturalWidth) fitMap();
+
+  // ── Transform ────────────────────────────────────────────────────────────
+  function applyTransform() {
+    world.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+  }
+
+  function clamp() {
+    const vw = viewport.offsetWidth, vh = viewport.offsetHeight;
+    const pw = imgW * scale, ph = imgH * scale;
+    const slack = 80;
+    tx = Math.min(slack, Math.max(vw - pw - slack + (pw > vw ? 0 : pw - vw), tx));
+    ty = Math.min(slack, Math.max(vh - ph - slack + (ph > vh ? 0 : ph - vh), ty));
+  }
+
+  function zoomAt(cx, cy, newScale) {
+    newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+    const r = newScale / scale;
+    tx = cx - r * (cx - tx);
+    ty = cy - r * (cy - ty);
+    scale = newScale;
+    clamp();
+    applyTransform();
+  }
+
+  // ── Mouse drag ───────────────────────────────────────────────────────────
+  viewport.addEventListener('mousedown', e => {
+    if (e.target.classList.contains('marker')) return;
+    dragging = true;
+    startX = e.clientX - tx;
+    startY = e.clientY - ty;
+    viewport.classList.add('dragging');
+    closePopup();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    tx = e.clientX - startX;
+    ty = e.clientY - startY;
+    clamp(); applyTransform();
+  });
+  window.addEventListener('mouseup', () => { dragging = false; viewport.classList.remove('dragging'); });
+
+  // ── Wheel zoom ───────────────────────────────────────────────────────────
+  viewport.addEventListener('wheel', e => {
+    e.preventDefault();
+    zoomAt(e.clientX, e.clientY, scale * (e.deltaY < 0 ? 1.12 : 0.89));
+  }, { passive: false });
+
+  // ── Touch ────────────────────────────────────────────────────────────────
+  let lastDist = null, lastMid = null;
+
+  viewport.addEventListener('touchstart', e => {
+    closePopup();
+    if (e.touches.length === 1) {
+      if (e.target.classList.contains('marker')) return;
+      dragging = true;
+      startX = e.touches[0].clientX - tx;
+      startY = e.touches[0].clientY - ty;
+    } else if (e.touches.length === 2) {
+      dragging = false;
+      lastDist = pinchDist(e.touches);
+      lastMid  = pinchMid(e.touches);
+    }
+  }, { passive: true });
+
+  viewport.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 1 && dragging) {
+      tx = e.touches[0].clientX - startX;
+      ty = e.touches[0].clientY - startY;
+      clamp(); applyTransform();
+    } else if (e.touches.length === 2) {
+      const d = pinchDist(e.touches);
+      const m = pinchMid(e.touches);
+      if (lastDist) zoomAt(m.x, m.y, scale * (d / lastDist));
+      lastDist = d; lastMid = m;
+    }
+  }, { passive: false });
+
+  viewport.addEventListener('touchend', e => {
+    if (e.touches.length < 2) { lastDist = null; }
+    if (e.touches.length === 0) dragging = false;
+  });
+
+  function pinchDist(t) {
+    const dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+  function pinchMid(t) {
+    return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 };
+  }
+
+  // ── Markers ──────────────────────────────────────────────────────────────
+  document.querySelectorAll('.marker').forEach(marker => {
+    function activate(e) {
+      e && e.stopPropagation();
+      const id = +marker.dataset.id;
+      if (activeMarker === marker) { closePopup(); return; }
+      if (activeMarker) activeMarker.classList.remove('active');
+      activeMarker = marker;
+      marker.classList.add('active');
+      const p = PLACES[id];
+      popupName.textContent = p.name;
+      popupAddr.textContent = p.address;
+      popup.style.left = marker.style.left;
+      popup.style.top  = marker.style.top;
+      popup.classList.remove('hidden');
+    }
+    marker.addEventListener('click', activate);
+    marker.addEventListener('touchend', e => { e.preventDefault(); activate(); });
+  });
+
+  viewport.addEventListener('click', closePopup);
+
+  function closePopup() {
+    popup.classList.add('hidden');
+    if (activeMarker) { activeMarker.classList.remove('active'); activeMarker = null; }
+  }
+
+  // ── Legend toggle ────────────────────────────────────────────────────────
+  const legendHeader  = document.getElementById('legend-header');
+  const legendBody    = document.getElementById('legend-body');
+  const legendChevron = document.getElementById('legend-chevron');
+
+  legendHeader.addEventListener('click', () => {
+    const open = !legendBody.classList.toggle('collapsed');
+    legendChevron.classList.toggle('open', open);
+  });
+
+  // Legend items → zoom to marker
+  document.querySelectorAll('.legend-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const m = document.querySelector(`.marker[data-id="${item.dataset.id}"]`);
+      if (!m) return;
+      // Pan so marker is centred, zoom in
+      const fx = parseFloat(m.dataset.x), fy = parseFloat(m.dataset.y);
+      const targetScale = Math.max(scale, 1.6);
+      const vw = viewport.offsetWidth, vh = viewport.offsetHeight;
+      tx = vw / 2 - fx * imgW * targetScale;
+      ty = vh / 2 - fy * imgH * targetScale;
+      scale = targetScale;
+      clamp(); applyTransform();
+      setTimeout(() => m.click(), 300);
+    });
+  });
+
+  // ── Zoom buttons ─────────────────────────────────────────────────────────
+  document.getElementById('zoom-in').addEventListener('click', () => {
+    zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale * 1.35);
+  });
+  document.getElementById('zoom-out').addEventListener('click', () => {
+    zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale / 1.35);
+  });
+
+  // ── Reset ────────────────────────────────────────────────────────────────
+  document.getElementById('reset-btn').addEventListener('click', () => {
+    scale = initialScale; tx = initialTx; ty = initialTy;
+    applyTransform(); closePopup();
+  });
+
+  window.addEventListener('resize', fitMap);
+}());
+</script>
+</body>
+</html>
