@@ -16,7 +16,6 @@
       touch-action: none;
     }
 
-    /* ── Map viewport ── */
     #viewport {
       width: 100%;
       height: 100%;
@@ -28,7 +27,6 @@
     }
     #viewport.dragging { cursor: grabbing; }
 
-    /* ── Pannable / zoomable world ── */
     #world {
       position: absolute;
       top: 0; left: 0;
@@ -36,15 +34,12 @@
       will-change: transform;
     }
 
-    /* ── Map background image ── */
     #map-img {
       display: block;
       pointer-events: none;
       -webkit-user-drag: none;
-      /* natural width set in JS after load */
     }
 
-    /* ── Building illustrations ── */
     .building {
       position: absolute;
       transform: translate(-50%, -100%);
@@ -56,7 +51,6 @@
       pointer-events: none;
     }
 
-    /* ── Numbered markers ── */
     .marker {
       position: absolute;
       width: 30px;
@@ -81,7 +75,6 @@
       transform: translate(-50%, -50%) scale(1.25);
     }
 
-    /* ── Popup ── */
     .popup {
       position: absolute;
       background: rgba(30, 33, 18, 0.96);
@@ -120,7 +113,6 @@
       line-height: 1.4;
     }
 
-    /* ── Legend panel ── */
     #legend {
       position: fixed;
       top: 14px;
@@ -198,7 +190,6 @@
       margin-top: 1px;
     }
 
-    /* ── Zoom controls ── */
     #zoom-controls {
       position: fixed;
       bottom: 24px;
@@ -227,7 +218,6 @@
     }
     .zoom-btn:active { background: rgba(212,196,160,0.25); }
 
-    /* ── Reset button ── */
     #reset-btn {
       position: fixed;
       bottom: 24px;
@@ -254,15 +244,13 @@
 
 <div id="viewport">
   <div id="world">
-    <img id="map-img" src="images/map-bg.png" alt="Mapa Palermo Buenos Aires">
+    <img id="map-img" src="images/Casa%20Juli%C3%A1n%20Alvarez%20BG.png" alt="Mapa Palermo Buenos Aires">
 
-    <!-- Building illustrations (positioned as % of natural image size, set in JS) -->
-    <!-- Buildings are hidden until map image loads -->
     <div class="building" data-x="0.570" data-y="0.300" data-w="130">
-      <img src="images/malba.png" width="130" alt="Malba">
+      <img src="images/MALBA.png" width="130" alt="Malba">
     </div>
     <div class="building" data-x="0.720" data-y="0.820" data-w="120">
-      <img src="images/teatro-colon.png" width="120" alt="Teatro Colón">
+      <img src="images/teatro%20colon.png" width="120" alt="Teatro Colón">
     </div>
     <div class="building" data-x="0.290" data-y="0.630" data-w="110">
       <img src="images/ninina.png" width="110" alt="Ninina">
@@ -271,16 +259,15 @@
       <img src="images/chui.png" width="110" alt="Chuí">
     </div>
     <div class="building" data-x="0.145" data-y="0.670" data-w="115">
-      <img src="images/el-gordo-chanta.png" width="115" alt="El Gordo Chanta">
+      <img src="images/el%20gordo%20chanta.png" width="115" alt="El Gordo Chanta">
     </div>
     <div class="building" data-x="0.305" data-y="0.430" data-w="115">
-      <img src="images/el-preferido.png" width="115" alt="El Preferido">
+      <img src="images/el%20preferido.png" width="115" alt="El Preferido">
     </div>
     <div class="building" data-x="0.800" data-y="0.870" data-w="115">
-      <img src="images/la-ideal.png" width="115" alt="La Ideal">
+      <img src="images/la%20ideal.png" width="115" alt="La Ideal">
     </div>
 
-    <!-- Markers -->
     <div class="marker" data-id="1" data-x="0.570" data-y="0.370">1</div>
     <div class="marker" data-id="2" data-x="0.720" data-y="0.880">2</div>
     <div class="marker" data-id="3" data-x="0.290" data-y="0.680">3</div>
@@ -289,7 +276,6 @@
     <div class="marker" data-id="6" data-x="0.305" data-y="0.470">6</div>
     <div class="marker" data-id="7" data-x="0.800" data-y="0.912">7</div>
 
-    <!-- Single shared popup -->
     <div class="popup hidden" id="popup">
       <div class="popup-name" id="popup-name"></div>
       <div class="popup-address" id="popup-address"></div>
@@ -297,7 +283,6 @@
   </div>
 </div>
 
-<!-- Legend -->
 <div id="legend">
   <div id="legend-header">
     <span>Leyenda</span>
@@ -335,7 +320,6 @@
   </div>
 </div>
 
-<!-- Zoom controls -->
 <div id="zoom-controls">
   <button class="zoom-btn" id="zoom-in" aria-label="Acercar">+</button>
   <button class="zoom-btn" id="zoom-out" aria-label="Alejar">&#8722;</button>
@@ -370,7 +354,6 @@
 
   const MIN_SCALE = 0.3, MAX_SCALE = 5;
 
-  // ── Layout elements using data-x / data-y fractions ──────────────────────
   function layoutElements() {
     imgW = mapImg.naturalWidth  || mapImg.offsetWidth;
     imgH = mapImg.naturalHeight || mapImg.offsetHeight;
@@ -378,20 +361,15 @@
     mapImg.style.height = imgH + 'px';
     world.style.width   = imgW + 'px';
     world.style.height  = imgH + 'px';
-
     document.querySelectorAll('.building, .marker').forEach(el => {
-      const fx = parseFloat(el.dataset.x);
-      const fy = parseFloat(el.dataset.y);
-      el.style.left = (fx * imgW) + 'px';
-      el.style.top  = (fy * imgH) + 'px';
+      el.style.left = (parseFloat(el.dataset.x) * imgW) + 'px';
+      el.style.top  = (parseFloat(el.dataset.y) * imgH) + 'px';
     });
   }
 
-  // ── Initial fit ──────────────────────────────────────────────────────────
   function fitMap() {
     layoutElements();
-    const vw = viewport.offsetWidth;
-    const vh = viewport.offsetHeight;
+    const vw = viewport.offsetWidth, vh = viewport.offsetHeight;
     scale = Math.min(vw / imgW, vh / imgH);
     tx = (vw - imgW * scale) / 2;
     ty = (vh - imgH * scale) / 2;
@@ -402,7 +380,6 @@
   mapImg.addEventListener('load', fitMap);
   if (mapImg.complete && mapImg.naturalWidth) fitMap();
 
-  // ── Transform ────────────────────────────────────────────────────────────
   function applyTransform() {
     world.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
   }
@@ -418,69 +395,54 @@
   function zoomAt(cx, cy, newScale) {
     newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
     const r = newScale / scale;
-    tx = cx - r * (cx - tx);
-    ty = cy - r * (cy - ty);
-    scale = newScale;
-    clamp();
-    applyTransform();
+    tx = cx - r * (cx - tx); ty = cy - r * (cy - ty);
+    scale = newScale; clamp(); applyTransform();
   }
 
-  // ── Mouse drag ───────────────────────────────────────────────────────────
   viewport.addEventListener('mousedown', e => {
     if (e.target.classList.contains('marker')) return;
     dragging = true;
-    startX = e.clientX - tx;
-    startY = e.clientY - ty;
-    viewport.classList.add('dragging');
-    closePopup();
+    startX = e.clientX - tx; startY = e.clientY - ty;
+    viewport.classList.add('dragging'); closePopup();
   });
   window.addEventListener('mousemove', e => {
     if (!dragging) return;
-    tx = e.clientX - startX;
-    ty = e.clientY - startY;
+    tx = e.clientX - startX; ty = e.clientY - startY;
     clamp(); applyTransform();
   });
   window.addEventListener('mouseup', () => { dragging = false; viewport.classList.remove('dragging'); });
 
-  // ── Wheel zoom ───────────────────────────────────────────────────────────
   viewport.addEventListener('wheel', e => {
     e.preventDefault();
     zoomAt(e.clientX, e.clientY, scale * (e.deltaY < 0 ? 1.12 : 0.89));
   }, { passive: false });
 
-  // ── Touch ────────────────────────────────────────────────────────────────
-  let lastDist = null, lastMid = null;
-
+  let lastDist = null;
   viewport.addEventListener('touchstart', e => {
     closePopup();
     if (e.touches.length === 1) {
       if (e.target.classList.contains('marker')) return;
       dragging = true;
-      startX = e.touches[0].clientX - tx;
-      startY = e.touches[0].clientY - ty;
+      startX = e.touches[0].clientX - tx; startY = e.touches[0].clientY - ty;
     } else if (e.touches.length === 2) {
-      dragging = false;
-      lastDist = pinchDist(e.touches);
-      lastMid  = pinchMid(e.touches);
+      dragging = false; lastDist = pinchDist(e.touches);
     }
   }, { passive: true });
 
   viewport.addEventListener('touchmove', e => {
     e.preventDefault();
     if (e.touches.length === 1 && dragging) {
-      tx = e.touches[0].clientX - startX;
-      ty = e.touches[0].clientY - startY;
+      tx = e.touches[0].clientX - startX; ty = e.touches[0].clientY - startY;
       clamp(); applyTransform();
     } else if (e.touches.length === 2) {
-      const d = pinchDist(e.touches);
-      const m = pinchMid(e.touches);
+      const d = pinchDist(e.touches), m = pinchMid(e.touches);
       if (lastDist) zoomAt(m.x, m.y, scale * (d / lastDist));
-      lastDist = d; lastMid = m;
+      lastDist = d;
     }
   }, { passive: false });
 
   viewport.addEventListener('touchend', e => {
-    if (e.touches.length < 2) { lastDist = null; }
+    if (e.touches.length < 2) lastDist = null;
     if (e.touches.length === 0) dragging = false;
   });
 
@@ -492,20 +454,16 @@
     return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 };
   }
 
-  // ── Markers ──────────────────────────────────────────────────────────────
   document.querySelectorAll('.marker').forEach(marker => {
     function activate(e) {
       e && e.stopPropagation();
       const id = +marker.dataset.id;
       if (activeMarker === marker) { closePopup(); return; }
       if (activeMarker) activeMarker.classList.remove('active');
-      activeMarker = marker;
-      marker.classList.add('active');
+      activeMarker = marker; marker.classList.add('active');
       const p = PLACES[id];
-      popupName.textContent = p.name;
-      popupAddr.textContent = p.address;
-      popup.style.left = marker.style.left;
-      popup.style.top  = marker.style.top;
+      popupName.textContent = p.name; popupAddr.textContent = p.address;
+      popup.style.left = marker.style.left; popup.style.top = marker.style.top;
       popup.classList.remove('hidden');
     }
     marker.addEventListener('click', activate);
@@ -519,34 +477,26 @@
     if (activeMarker) { activeMarker.classList.remove('active'); activeMarker = null; }
   }
 
-  // ── Legend toggle ────────────────────────────────────────────────────────
-  const legendHeader  = document.getElementById('legend-header');
   const legendBody    = document.getElementById('legend-body');
   const legendChevron = document.getElementById('legend-chevron');
-
-  legendHeader.addEventListener('click', () => {
+  document.getElementById('legend-header').addEventListener('click', () => {
     const open = !legendBody.classList.toggle('collapsed');
     legendChevron.classList.toggle('open', open);
   });
 
-  // Legend items → zoom to marker
   document.querySelectorAll('.legend-item').forEach(item => {
     item.addEventListener('click', () => {
       const m = document.querySelector(`.marker[data-id="${item.dataset.id}"]`);
       if (!m) return;
-      // Pan so marker is centred, zoom in
-      const fx = parseFloat(m.dataset.x), fy = parseFloat(m.dataset.y);
       const targetScale = Math.max(scale, 1.6);
       const vw = viewport.offsetWidth, vh = viewport.offsetHeight;
-      tx = vw / 2 - fx * imgW * targetScale;
-      ty = vh / 2 - fy * imgH * targetScale;
-      scale = targetScale;
-      clamp(); applyTransform();
+      tx = vw / 2 - parseFloat(m.dataset.x) * imgW * targetScale;
+      ty = vh / 2 - parseFloat(m.dataset.y) * imgH * targetScale;
+      scale = targetScale; clamp(); applyTransform();
       setTimeout(() => m.click(), 300);
     });
   });
 
-  // ── Zoom buttons ─────────────────────────────────────────────────────────
   document.getElementById('zoom-in').addEventListener('click', () => {
     zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale * 1.35);
   });
@@ -554,7 +504,6 @@
     zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale / 1.35);
   });
 
-  // ── Reset ────────────────────────────────────────────────────────────────
   document.getElementById('reset-btn').addEventListener('click', () => {
     scale = initialScale; tx = initialTx; ty = initialTy;
     applyTransform(); closePopup();
