@@ -40,41 +40,17 @@
       -webkit-user-drag: none;
     }
 
-    .building {
-      position: absolute;
-      transform: translate(-50%, -100%);
-      pointer-events: none;
-    }
-    .building img {
-      display: block;
-      width: 100%;
-      height: auto;
-      -webkit-user-drag: none;
-      pointer-events: none;
-    }
-
+    /* Invisible tap targets — sized for comfortable mobile tapping */
     .marker {
       position: absolute;
-      width: 30px;
-      height: 30px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      background: #d4c4a0;
-      border: 2px solid #f5efe3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: bold;
-      color: #2a2e1a;
+      background: transparent;
       cursor: pointer;
       transform: translate(-50%, -50%);
       z-index: 10;
-      transition: background 0.15s, transform 0.15s;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    }
-    .marker:hover, .marker.active {
-      background: #f5efe3;
-      transform: translate(-50%, -50%) scale(1.25);
+      -webkit-tap-highlight-color: transparent;
     }
 
     .popup {
@@ -87,7 +63,7 @@
       max-width: 220px;
       z-index: 20;
       pointer-events: none;
-      transform: translate(-50%, calc(-100% - 22px));
+      transform: translate(-50%, calc(-100% - 32px));
       box-shadow: 0 4px 16px rgba(0,0,0,0.5);
     }
     .popup::after {
@@ -146,7 +122,6 @@
       transition: transform 0.2s;
     }
     #legend-chevron.open { transform: rotate(180deg); }
-
     #legend-body {
       border-top: 1px solid rgba(212,196,160,0.2);
       overflow: hidden;
@@ -154,7 +129,6 @@
       transition: max-height 0.25s ease;
     }
     #legend-body.collapsed { max-height: 0; border-top: none; }
-
     .legend-item {
       display: flex;
       align-items: center;
@@ -183,7 +157,6 @@
       display: block;
       color: #f5efe3;
       font-size: 12px;
-      font-weight: bold;
     }
     .legend-info span {
       display: block;
@@ -209,7 +182,6 @@
       border-radius: 5px;
       color: #f5efe3;
       font-size: 20px;
-      line-height: 1;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -248,42 +220,14 @@
   <div id="world">
     <img id="map-img" src="images/Casa%20Juli%C3%A1n%20Alvarez%20BG.png" alt="Mapa Palermo Buenos Aires">
 
-    <!-- 1 Malba -->
-    <div class="building" data-x="0.570" data-y="0.310" data-w="0.100">
-      <img src="images/MALBA.png" alt="Malba" crossorigin="anonymous">
-    </div>
-    <!-- 2 Teatro Colón -->
-    <div class="building" data-x="0.715" data-y="0.878" data-w="0.090">
-      <img src="images/teatro%20colon.png" alt="Teatro Colón" crossorigin="anonymous">
-    </div>
-    <!-- 3 Ninina -->
-    <div class="building" data-x="0.318" data-y="0.595" data-w="0.080">
-      <img src="images/ninina.png" alt="Ninina" crossorigin="anonymous">
-    </div>
-    <!-- 4 Chuí -->
-    <div class="building" data-x="0.158" data-y="0.548" data-w="0.082">
-      <img src="images/chui.png" alt="Chuí" crossorigin="anonymous">
-    </div>
-    <!-- 5 El Gordo Chanta -->
-    <div class="building" data-x="0.096" data-y="0.645" data-w="0.090">
-      <img src="images/el%20gordo%20chanta.png" alt="El Gordo Chanta" crossorigin="anonymous">
-    </div>
-    <!-- 6 El Preferido -->
-    <div class="building" data-x="0.300" data-y="0.418" data-w="0.082">
-      <img src="images/el%20preferido.png" alt="El Preferido" crossorigin="anonymous">
-    </div>
-    <!-- 7 La Ideal -->
-    <div class="building" data-x="0.820" data-y="0.872" data-w="0.088">
-      <img src="images/la%20ideal.png" alt="La Ideal" crossorigin="anonymous">
-    </div>
-
-    <div class="marker" data-id="1" data-x="0.570" data-y="0.310">1</div>
-    <div class="marker" data-id="2" data-x="0.715" data-y="0.878">2</div>
-    <div class="marker" data-id="3" data-x="0.318" data-y="0.595">3</div>
-    <div class="marker" data-id="4" data-x="0.158" data-y="0.548">4</div>
-    <div class="marker" data-id="5" data-x="0.096" data-y="0.645">5</div>
-    <div class="marker" data-id="6" data-x="0.300" data-y="0.418">6</div>
-    <div class="marker" data-id="7" data-x="0.820" data-y="0.872">7</div>
+    <!-- Invisible tap targets centred on each building in the map image -->
+    <div class="marker" data-id="1" data-x="0.570" data-y="0.255"></div>
+    <div class="marker" data-id="2" data-x="0.715" data-y="0.855"></div>
+    <div class="marker" data-id="3" data-x="0.318" data-y="0.555"></div>
+    <div class="marker" data-id="4" data-x="0.158" data-y="0.505"></div>
+    <div class="marker" data-id="5" data-x="0.096" data-y="0.608"></div>
+    <div class="marker" data-id="6" data-x="0.300" data-y="0.375"></div>
+    <div class="marker" data-id="7" data-x="0.820" data-y="0.850"></div>
 
     <div class="popup hidden" id="popup">
       <div class="popup-name" id="popup-name"></div>
@@ -330,11 +274,10 @@
 </div>
 
 <div id="zoom-controls">
-  <button class="zoom-btn" id="zoom-in" aria-label="Acercar">+</button>
-  <button class="zoom-btn" id="zoom-out" aria-label="Alejar">&#8722;</button>
+  <button class="zoom-btn" id="zoom-in">+</button>
+  <button class="zoom-btn" id="zoom-out">&#8722;</button>
 </div>
-
-<button id="reset-btn" aria-label="Restablecer vista">Reset</button>
+<button id="reset-btn">Reset</button>
 
 <script>
 (function () {
@@ -363,55 +306,13 @@
 
   const MIN_SCALE = 0.3, MAX_SCALE = 5;
 
-  // Strip near-white pixels from a building image using an offscreen canvas.
-  // Threshold 210: pixels where R, G, B are all above this become transparent.
-  function removeWhiteBg(img) {
-    try {
-      const canvas = document.createElement('canvas');
-      canvas.width  = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const d = imageData.data;
-      const T = 210;
-      for (let i = 0; i < d.length; i += 4) {
-        if (d[i] > T && d[i + 1] > T && d[i + 2] > T) {
-          d[i + 3] = 0;
-        }
-      }
-      ctx.putImageData(imageData, 0, 0);
-      img.src = canvas.toDataURL('image/png');
-    } catch (e) {
-      // If canvas is blocked (e.g. CORS), silently skip — image renders with bg
-      console.warn('Could not strip white bg from', img.alt, e);
-    }
-  }
-
-  function processBuildings() {
-    document.querySelectorAll('.building img').forEach(img => {
-      if (img.complete && img.naturalWidth) {
-        removeWhiteBg(img);
-      } else {
-        img.addEventListener('load', () => removeWhiteBg(img), { once: true });
-      }
-    });
-  }
-
-  function layoutElements() {
+  function layoutMarkers() {
     imgW = mapImg.naturalWidth  || mapImg.offsetWidth;
     imgH = mapImg.naturalHeight || mapImg.offsetHeight;
     mapImg.style.width  = imgW + 'px';
     mapImg.style.height = imgH + 'px';
     world.style.width   = imgW + 'px';
     world.style.height  = imgH + 'px';
-
-    document.querySelectorAll('.building').forEach(el => {
-      el.style.left  = (parseFloat(el.dataset.x) * imgW) + 'px';
-      el.style.top   = (parseFloat(el.dataset.y) * imgH) + 'px';
-      el.style.width = (parseFloat(el.dataset.w) * imgW) + 'px';
-    });
-
     document.querySelectorAll('.marker').forEach(el => {
       el.style.left = (parseFloat(el.dataset.x) * imgW) + 'px';
       el.style.top  = (parseFloat(el.dataset.y) * imgH) + 'px';
@@ -419,7 +320,7 @@
   }
 
   function fitMap() {
-    layoutElements();
+    layoutMarkers();
     const vw = viewport.offsetWidth, vh = viewport.offsetHeight;
     scale = Math.min(vw / imgW, vh / imgH);
     tx = (vw - imgW * scale) / 2;
@@ -428,8 +329,8 @@
     applyTransform();
   }
 
-  mapImg.addEventListener('load', () => { fitMap(); processBuildings(); });
-  if (mapImg.complete && mapImg.naturalWidth) { fitMap(); processBuildings(); }
+  mapImg.addEventListener('load', fitMap);
+  if (mapImg.complete && mapImg.naturalWidth) fitMap();
 
   function applyTransform() {
     world.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
@@ -450,6 +351,15 @@
     scale = newScale; clamp(); applyTransform();
   }
 
+  function panTo(fx, fy, targetScale) {
+    scale = Math.max(scale, targetScale);
+    const vw = viewport.offsetWidth, vh = viewport.offsetHeight;
+    tx = vw / 2 - fx * imgW * scale;
+    ty = vh / 2 - fy * imgH * scale;
+    clamp(); applyTransform();
+  }
+
+  // Drag
   viewport.addEventListener('mousedown', e => {
     if (e.target.classList.contains('marker')) return;
     dragging = true;
@@ -463,11 +373,13 @@
   });
   window.addEventListener('mouseup', () => { dragging = false; viewport.classList.remove('dragging'); });
 
+  // Wheel zoom
   viewport.addEventListener('wheel', e => {
     e.preventDefault();
     zoomAt(e.clientX, e.clientY, scale * (e.deltaY < 0 ? 1.12 : 0.89));
   }, { passive: false });
 
+  // Touch
   let lastDist = null;
   viewport.addEventListener('touchstart', e => {
     closePopup();
@@ -505,29 +417,39 @@
     return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 };
   }
 
+  function showPopup(id, marker) {
+    const p = PLACES[id];
+    popupName.textContent = p.name;
+    popupAddr.textContent = p.address;
+    popup.style.left = marker.style.left;
+    popup.style.top  = marker.style.top;
+    popup.classList.remove('hidden');
+    activeMarker = marker;
+  }
+
+  // Tap on invisible hotspot
   document.querySelectorAll('.marker').forEach(marker => {
     function activate(e) {
       e && e.stopPropagation();
       const id = +marker.dataset.id;
       if (activeMarker === marker) { closePopup(); return; }
-      if (activeMarker) activeMarker.classList.remove('active');
-      activeMarker = marker; marker.classList.add('active');
-      const p = PLACES[id];
-      popupName.textContent = p.name; popupAddr.textContent = p.address;
-      popup.style.left = marker.style.left; popup.style.top = marker.style.top;
-      popup.classList.remove('hidden');
+      closePopup();
+      showPopup(id, marker);
     }
     marker.addEventListener('click', activate);
     marker.addEventListener('touchend', e => { e.preventDefault(); activate(); });
   });
 
-  viewport.addEventListener('click', closePopup);
+  viewport.addEventListener('click', e => {
+    if (!e.target.classList.contains('marker')) closePopup();
+  });
 
   function closePopup() {
     popup.classList.add('hidden');
-    if (activeMarker) { activeMarker.classList.remove('active'); activeMarker = null; }
+    activeMarker = null;
   }
 
+  // Legend toggle
   const legendBody    = document.getElementById('legend-body');
   const legendChevron = document.getElementById('legend-chevron');
   document.getElementById('legend-header').addEventListener('click', () => {
@@ -535,19 +457,18 @@
     legendChevron.classList.toggle('open', open);
   });
 
+  // Legend item → jump to building and show popup
   document.querySelectorAll('.legend-item').forEach(item => {
     item.addEventListener('click', () => {
-      const m = document.querySelector(`.marker[data-id="${item.dataset.id}"]`);
-      if (!m) return;
-      const targetScale = Math.max(scale, 1.6);
-      const vw = viewport.offsetWidth, vh = viewport.offsetHeight;
-      tx = vw / 2 - parseFloat(m.dataset.x) * imgW * targetScale;
-      ty = vh / 2 - parseFloat(m.dataset.y) * imgH * targetScale;
-      scale = targetScale; clamp(); applyTransform();
-      setTimeout(() => m.click(), 300);
+      const id = +item.dataset.id;
+      const marker = document.querySelector(`.marker[data-id="${id}"]`);
+      if (!marker) return;
+      panTo(parseFloat(marker.dataset.x), parseFloat(marker.dataset.y), 2.0);
+      setTimeout(() => { closePopup(); showPopup(id, marker); }, 60);
     });
   });
 
+  // Zoom buttons
   document.getElementById('zoom-in').addEventListener('click', () => {
     zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale * 1.35);
   });
@@ -555,6 +476,7 @@
     zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale / 1.35);
   });
 
+  // Reset
   document.getElementById('reset-btn').addEventListener('click', () => {
     scale = initialScale; tx = initialTx; ty = initialTy;
     applyTransform(); closePopup();
