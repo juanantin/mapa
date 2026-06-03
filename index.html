@@ -52,7 +52,6 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* Legend — no box, just floating items */
     #legend {
       position: fixed;
       top: 16px;
@@ -61,33 +60,41 @@
     }
     .legend-item {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 3px 0;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 5px 0;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
     .legend-num {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
       background: #d4c4a0;
       color: #2a2e1a;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: bold;
       flex-shrink: 0;
+      margin-top: 1px;
     }
     .legend-info strong {
       display: block;
       color: #f5efe3;
-      font-size: 11px;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+      font-size: 13px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      line-height: 1.2;
+    }
+    .legend-info span {
+      display: block;
+      color: #c8bca8;
+      font-size: 10px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+      margin-top: 1px;
     }
 
-    /* Zoom controls */
     #zoom-controls {
       position: fixed;
       bottom: 24px;
@@ -152,31 +159,31 @@
 <div id="legend">
   <div class="legend-item" data-id="1">
     <div class="legend-num">1</div>
-    <div class="legend-info"><strong>Malba</strong></div>
+    <div class="legend-info"><strong>Malba</strong><span>Av. Figueroa Alcorta 3415</span></div>
   </div>
   <div class="legend-item" data-id="2">
     <div class="legend-num">2</div>
-    <div class="legend-info"><strong>Teatro Colón</strong></div>
+    <div class="legend-info"><strong>Teatro Colón</strong><span>Cerrito 628</span></div>
   </div>
   <div class="legend-item" data-id="3">
     <div class="legend-num">3</div>
-    <div class="legend-info"><strong>Ninina</strong></div>
+    <div class="legend-info"><strong>Ninina</strong><span>Gorriti 4738</span></div>
   </div>
   <div class="legend-item" data-id="4">
     <div class="legend-num">4</div>
-    <div class="legend-info"><strong>Chuí</strong></div>
+    <div class="legend-info"><strong>Chuí</strong><span>Loyola 1250</span></div>
   </div>
   <div class="legend-item" data-id="5">
     <div class="legend-num">5</div>
-    <div class="legend-info"><strong>El Gordo Chanta</strong></div>
+    <div class="legend-info"><strong>El Gordo Chanta</strong><span>Juan Ramírez de Velasco 1200</span></div>
   </div>
   <div class="legend-item" data-id="6">
     <div class="legend-num">6</div>
-    <div class="legend-info"><strong>El Preferido</strong></div>
+    <div class="legend-info"><strong>El Preferido</strong><span>Jorge Luis Borges 2108</span></div>
   </div>
   <div class="legend-item" data-id="7">
     <div class="legend-num">7</div>
-    <div class="legend-info"><strong>La Ideal</strong></div>
+    <div class="legend-info"><strong>La Ideal</strong><span>Suipacha 384</span></div>
   </div>
 </div>
 
@@ -188,16 +195,6 @@
 
 <script>
 (function () {
-  const PLACES = {
-    1: { name: 'Malba',           address: 'Av. Figueroa Alcorta 3415' },
-    2: { name: 'Teatro Colón',    address: 'Cerrito 628' },
-    3: { name: 'Ninina',          address: 'Gorriti 4738' },
-    4: { name: 'Chuí',            address: 'Loyola 1250' },
-    5: { name: 'El Gordo Chanta', address: 'Juan Ramírez de Velasco 1200' },
-    6: { name: 'El Preferido',    address: 'Jorge Luis Borges 2108' },
-    7: { name: 'La Ideal',        address: 'Suipacha 384' },
-  };
-
   const CJA_X = 0.30, CJA_Y = 0.66;
 
   const viewport = document.getElementById('viewport');
@@ -325,7 +322,6 @@
     return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 };
   }
 
-  // Legend tap → pan to location
   document.querySelectorAll('.legend-item').forEach(item => {
     item.addEventListener('click', () => {
       const marker = document.querySelector(`.marker[data-id="${item.dataset.id}"]`);
