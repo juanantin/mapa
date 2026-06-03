@@ -95,31 +95,6 @@
       margin-top: 1px;
     }
 
-    #zoom-controls {
-      position: fixed;
-      bottom: 24px;
-      right: 16px;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .zoom-btn {
-      width: 36px;
-      height: 36px;
-      background: rgba(30, 33, 18, 0.75);
-      border: none;
-      border-radius: 5px;
-      color: #f5efe3;
-      font-size: 20px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .zoom-btn:active { background: rgba(212,196,160,0.3); }
-
     #reset-btn {
       position: fixed;
       bottom: 24px;
@@ -187,10 +162,6 @@
   </div>
 </div>
 
-<div id="zoom-controls">
-  <button class="zoom-btn" id="zoom-in">+</button>
-  <button class="zoom-btn" id="zoom-out">&#8722;</button>
-</div>
 <button id="reset-btn">Reset</button>
 
 <script>
@@ -328,13 +299,6 @@
       if (!marker) return;
       panTo(parseFloat(marker.dataset.x), parseFloat(marker.dataset.y), initialScale * 1.3);
     });
-  });
-
-  document.getElementById('zoom-in').addEventListener('click', () => {
-    zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale * 1.35);
-  });
-  document.getElementById('zoom-out').addEventListener('click', () => {
-    zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale / 1.35);
   });
 
   document.getElementById('reset-btn').addEventListener('click', () => {
