@@ -40,7 +40,6 @@
       -webkit-user-drag: none;
     }
 
-    /* Invisible tap targets — sized for comfortable mobile tapping */
     .marker {
       position: absolute;
       width: 60px;
@@ -116,11 +115,7 @@
       text-transform: uppercase;
     }
     #legend-header:hover { background: rgba(255,255,255,0.04); }
-    #legend-chevron {
-      font-size: 9px;
-      opacity: 0.6;
-      transition: transform 0.2s;
-    }
+    #legend-chevron { font-size: 9px; opacity: 0.6; transition: transform 0.2s; }
     #legend-chevron.open { transform: rotate(180deg); }
     #legend-body {
       border-top: 1px solid rgba(212,196,160,0.2);
@@ -153,17 +148,8 @@
       font-weight: bold;
       flex-shrink: 0;
     }
-    .legend-info strong {
-      display: block;
-      color: #f5efe3;
-      font-size: 12px;
-    }
-    .legend-info span {
-      display: block;
-      color: #8a9070;
-      font-size: 10px;
-      margin-top: 1px;
-    }
+    .legend-info strong { display: block; color: #f5efe3; font-size: 12px; }
+    .legend-info span   { display: block; color: #8a9070; font-size: 10px; margin-top: 1px; }
 
     #zoom-controls {
       position: fixed;
@@ -218,9 +204,10 @@
 
 <div id="viewport">
   <div id="world">
+    <!-- Upload the full Canva export (all layers) as this file to see buildings -->
     <img id="map-img" src="images/Casa%20Juli%C3%A1n%20Alvarez%20BG.png" alt="Mapa Palermo Buenos Aires">
 
-    <!-- Invisible tap targets centred on each building in the map image -->
+    <!-- Invisible tap targets centred on each building -->
     <div class="marker" data-id="1" data-x="0.570" data-y="0.255"></div>
     <div class="marker" data-id="2" data-x="0.715" data-y="0.855"></div>
     <div class="marker" data-id="3" data-x="0.318" data-y="0.555"></div>
@@ -291,6 +278,9 @@
     7: { name: 'La Ideal',        address: 'Suipacha 384' },
   };
 
+  // Casa Julián Alvarez position as fraction of image size — initial focus point
+  const CJA_X = 0.30, CJA_Y = 0.66;
+
   const viewport  = document.getElementById('viewport');
   const world     = document.getElementById('world');
   const mapImg    = document.getElementById('map-img');
@@ -304,7 +294,7 @@
   let imgW = 0, imgH = 0;
   let initialScale, initialTx, initialTy;
 
-  const MIN_SCALE = 0.3, MAX_SCALE = 5;
+  const MIN_SCALE = 0.2, MAX_SCALE = 5;
 
   function layoutMarkers() {
     imgW = mapImg.naturalWidth  || mapImg.offsetWidth;
@@ -322,9 +312,21 @@
   function fitMap() {
     layoutMarkers();
     const vw = viewport.offsetWidth, vh = viewport.offsetHeight;
-    scale = Math.min(vw / imgW, vh / imgH);
-    tx = (vw - imgW * scale) / 2;
-    ty = (vh - imgH * scale) / 2;
+    const isMobile = vw < 900;
+
+    if (isMobile) {
+      // Fit map height to screen so buildings are readable, then centre on CJA
+      scale = vh / imgH;
+      tx = vw / 2 - CJA_X * imgW * scale;
+      ty = vh / 2 - CJA_Y * imgH * scale;
+    } else {
+      // Desktop: fit full map to screen
+      scale = Math.min(vw / imgW, vh / imgH);
+      tx = (vw - imgW * scale) / 2;
+      ty = (vh - imgH * scale) / 2;
+    }
+
+    clamp();
     initialScale = scale; initialTx = tx; initialTy = ty;
     applyTransform();
   }
@@ -427,7 +429,6 @@
     activeMarker = marker;
   }
 
-  // Tap on invisible hotspot
   document.querySelectorAll('.marker').forEach(marker => {
     function activate(e) {
       e && e.stopPropagation();
@@ -457,7 +458,7 @@
     legendChevron.classList.toggle('open', open);
   });
 
-  // Legend item → jump to building and show popup
+  // Legend item → jump to building
   document.querySelectorAll('.legend-item').forEach(item => {
     item.addEventListener('click', () => {
       const id = +item.dataset.id;
@@ -468,7 +469,6 @@
     });
   });
 
-  // Zoom buttons
   document.getElementById('zoom-in').addEventListener('click', () => {
     zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale * 1.35);
   });
@@ -476,7 +476,6 @@
     zoomAt(viewport.offsetWidth / 2, viewport.offsetHeight / 2, scale / 1.35);
   });
 
-  // Reset
   document.getElementById('reset-btn').addEventListener('click', () => {
     scale = initialScale; tx = initialTx; ty = initialTy;
     applyTransform(); closePopup();
