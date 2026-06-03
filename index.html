@@ -52,71 +52,24 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .popup {
-      position: absolute;
-      background: rgba(30, 33, 18, 0.96);
-      border: 1px solid #d4c4a0;
-      border-radius: 5px;
-      padding: 10px 14px;
-      min-width: 160px;
-      max-width: 210px;
-      z-index: 20;
-      pointer-events: none;
-      transform: translate(-50%, calc(-100% - 32px));
-      box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-    }
-    .popup::after {
-      content: '';
-      position: absolute;
-      bottom: -7px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0; height: 0;
-      border-left: 7px solid transparent;
-      border-right: 7px solid transparent;
-      border-top: 7px solid #d4c4a0;
-    }
-    .popup.hidden { display: none; }
-    .popup-name {
-      color: #f5efe3;
-      font-size: 13px;
-      font-weight: bold;
-      margin-bottom: 3px;
-    }
-    .popup-address {
-      color: #a09070;
-      font-size: 11px;
-      line-height: 1.4;
-    }
-
-    /* Legend — no header, just the list */
+    /* Legend — no box, just floating items */
     #legend {
       position: fixed;
-      top: 14px;
+      top: 16px;
       left: 14px;
       z-index: 100;
-      background: rgba(30, 33, 18, 0.88);
-      border: 1px solid rgba(212,196,160,0.4);
-      border-radius: 6px;
-      overflow: hidden;
-      min-width: 190px;
-      max-width: 220px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 9px;
-      padding: 7px 12px;
+      gap: 8px;
+      padding: 3px 0;
       cursor: pointer;
-      border-bottom: 1px solid rgba(212,196,160,0.08);
-      transition: background 0.1s;
+      -webkit-tap-highlight-color: transparent;
     }
-    .legend-item:last-child { border-bottom: none; }
-    .legend-item:active { background: rgba(255,255,255,0.05); }
     .legend-num {
-      width: 19px;
-      height: 19px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       background: #d4c4a0;
       color: #2a2e1a;
@@ -127,8 +80,12 @@
       font-weight: bold;
       flex-shrink: 0;
     }
-    .legend-info strong { display: block; color: #f5efe3; font-size: 11px; }
-    .legend-info span   { display: block; color: #8a9070; font-size: 10px; margin-top: 1px; }
+    .legend-info strong {
+      display: block;
+      color: #f5efe3;
+      font-size: 11px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    }
 
     /* Zoom controls */
     #zoom-controls {
@@ -143,8 +100,8 @@
     .zoom-btn {
       width: 36px;
       height: 36px;
-      background: rgba(30, 33, 18, 0.88);
-      border: 1px solid rgba(212,196,160,0.4);
+      background: rgba(30, 33, 18, 0.75);
+      border: none;
       border-radius: 5px;
       color: #f5efe3;
       font-size: 20px;
@@ -152,27 +109,25 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       -webkit-tap-highlight-color: transparent;
     }
-    .zoom-btn:active { background: rgba(212,196,160,0.2); }
+    .zoom-btn:active { background: rgba(212,196,160,0.3); }
 
     #reset-btn {
       position: fixed;
       bottom: 24px;
       left: 14px;
       z-index: 100;
-      background: rgba(30, 33, 18, 0.88);
-      border: 1px solid rgba(212,196,160,0.4);
+      background: rgba(30, 33, 18, 0.75);
+      border: none;
       border-radius: 5px;
-      color: #8a9070;
+      color: #a09070;
       font-size: 10px;
       letter-spacing: 0.8px;
       text-transform: uppercase;
       padding: 0 12px;
       height: 36px;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
       -webkit-tap-highlight-color: transparent;
     }
     #reset-btn:active { color: #f5efe3; }
@@ -191,42 +146,37 @@
     <div class="marker" data-id="5" data-x="0.096" data-y="0.608"></div>
     <div class="marker" data-id="6" data-x="0.300" data-y="0.375"></div>
     <div class="marker" data-id="7" data-x="0.820" data-y="0.850"></div>
-
-    <div class="popup hidden" id="popup">
-      <div class="popup-name" id="popup-name"></div>
-      <div class="popup-address" id="popup-address"></div>
-    </div>
   </div>
 </div>
 
 <div id="legend">
   <div class="legend-item" data-id="1">
     <div class="legend-num">1</div>
-    <div class="legend-info"><strong>Malba</strong><span>Av. Figueroa Alcorta 3415</span></div>
+    <div class="legend-info"><strong>Malba</strong></div>
   </div>
   <div class="legend-item" data-id="2">
     <div class="legend-num">2</div>
-    <div class="legend-info"><strong>Teatro Colón</strong><span>Cerrito 628</span></div>
+    <div class="legend-info"><strong>Teatro Colón</strong></div>
   </div>
   <div class="legend-item" data-id="3">
     <div class="legend-num">3</div>
-    <div class="legend-info"><strong>Ninina</strong><span>Gorriti 4738</span></div>
+    <div class="legend-info"><strong>Ninina</strong></div>
   </div>
   <div class="legend-item" data-id="4">
     <div class="legend-num">4</div>
-    <div class="legend-info"><strong>Chuí</strong><span>Loyola 1250</span></div>
+    <div class="legend-info"><strong>Chuí</strong></div>
   </div>
   <div class="legend-item" data-id="5">
     <div class="legend-num">5</div>
-    <div class="legend-info"><strong>El Gordo Chanta</strong><span>Juan Ramírez de Velasco 1200</span></div>
+    <div class="legend-info"><strong>El Gordo Chanta</strong></div>
   </div>
   <div class="legend-item" data-id="6">
     <div class="legend-num">6</div>
-    <div class="legend-info"><strong>El Preferido</strong><span>Jorge Luis Borges 2108</span></div>
+    <div class="legend-info"><strong>El Preferido</strong></div>
   </div>
   <div class="legend-item" data-id="7">
     <div class="legend-num">7</div>
-    <div class="legend-info"><strong>La Ideal</strong><span>Suipacha 384</span></div>
+    <div class="legend-info"><strong>La Ideal</strong></div>
   </div>
 </div>
 
@@ -250,16 +200,12 @@
 
   const CJA_X = 0.30, CJA_Y = 0.66;
 
-  const viewport  = document.getElementById('viewport');
-  const world     = document.getElementById('world');
-  const mapImg    = document.getElementById('map-img');
-  const popup     = document.getElementById('popup');
-  const popupName = document.getElementById('popup-name');
-  const popupAddr = document.getElementById('popup-address');
+  const viewport = document.getElementById('viewport');
+  const world    = document.getElementById('world');
+  const mapImg   = document.getElementById('map-img');
 
   let scale = 1, tx = 0, ty = 0;
   let dragging = false, startX, startY;
-  let activeMarker = null;
   let imgW = 0, imgH = 0;
   let initialScale, initialTx, initialTy;
 
@@ -318,7 +264,6 @@
   }
 
   function panTo(fx, fy, targetScale) {
-    // Only zoom in if we're currently more zoomed out than the target
     if (scale < targetScale) scale = targetScale;
     const vw = viewport.offsetWidth, vh = viewport.offsetHeight;
     tx = vw / 2 - fx * imgW * scale;
@@ -330,7 +275,7 @@
     if (e.target.classList.contains('marker')) return;
     dragging = true;
     startX = e.clientX - tx; startY = e.clientY - ty;
-    viewport.classList.add('dragging'); closePopup();
+    viewport.classList.add('dragging');
   });
   window.addEventListener('mousemove', e => {
     if (!dragging) return;
@@ -346,7 +291,6 @@
 
   let lastDist = null;
   viewport.addEventListener('touchstart', e => {
-    closePopup();
     if (e.touches.length === 1) {
       if (e.target.classList.contains('marker')) return;
       dragging = true;
@@ -381,45 +325,12 @@
     return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 };
   }
 
-  function showPopup(id, marker) {
-    const p = PLACES[id];
-    popupName.textContent = p.name;
-    popupAddr.textContent = p.address;
-    popup.style.left = marker.style.left;
-    popup.style.top  = marker.style.top;
-    popup.classList.remove('hidden');
-    activeMarker = marker;
-  }
-
-  document.querySelectorAll('.marker').forEach(marker => {
-    function activate(e) {
-      e && e.stopPropagation();
-      const id = +marker.dataset.id;
-      if (activeMarker === marker) { closePopup(); return; }
-      closePopup();
-      showPopup(id, marker);
-    }
-    marker.addEventListener('click', activate);
-    marker.addEventListener('touchend', e => { e.preventDefault(); activate(); });
-  });
-
-  viewport.addEventListener('click', e => {
-    if (!e.target.classList.contains('marker')) closePopup();
-  });
-
-  function closePopup() {
-    popup.classList.add('hidden');
-    activeMarker = null;
-  }
-
+  // Legend tap → pan to location
   document.querySelectorAll('.legend-item').forEach(item => {
     item.addEventListener('click', () => {
-      const id = +item.dataset.id;
-      const marker = document.querySelector(`.marker[data-id="${id}"]`);
+      const marker = document.querySelector(`.marker[data-id="${item.dataset.id}"]`);
       if (!marker) return;
-      // Pan to location at a gentle zoom (1.3× initial scale feels natural)
       panTo(parseFloat(marker.dataset.x), parseFloat(marker.dataset.y), initialScale * 1.3);
-      setTimeout(() => { closePopup(); showPopup(id, marker); }, 60);
     });
   });
 
@@ -432,7 +343,7 @@
 
   document.getElementById('reset-btn').addEventListener('click', () => {
     scale = initialScale; tx = initialTx; ty = initialTy;
-    applyTransform(); closePopup();
+    applyTransform();
   });
 
   window.addEventListener('resize', fitMap);
